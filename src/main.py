@@ -28,6 +28,47 @@ def main(opt):
   os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpus_str
   opt.device = torch.device('cuda' if opt.gpus[0] >= 0 else 'cpu')
   
+  if opt.dist_url == "env://" and opt.world_size == -1:
+    opt.world_size = int(os.environ["WORLD_SIZE"])
+
+  opt.distributed = opt.world_size > 1 or opt.multiprocessing_distributed
+  ngpus_per_node = torch.cuda.device_count()
+  if opt.multiprocessing_distributed:
+    # Since we have ngpus_per_node processes per node, the total world_size
+    # needs to be adjusted accordingly
+    opt.world_size = ngpus_per_node * opt.world_size
+    # Use torch.multiprocessing.spawn to launch distributed processes: the
+    # main_worker process function
+    mp.spawn(main_worker, nprocs=ngpus_per_node, opt=(ngpus_per_node, opt))
+  else:
+    # Simply call main_worker function
+    main_worker(args.gpu, ngpus_per_node, opt)
+
+
+def main_worker(gpu, ngpus_per_node, opt):
+
+  # suppress printing if not master
+  if args.multiprocessing_distributed and args.gpu != 0:
+      def print_pass(*args):
+          pass
+      builtins.print = print_pass
+
+  if args.gpu is not None:
+      print("Use GPU: {} for training".format(args.gpu))
+
+  if args.distributed:
+      if args.dist_url == "env://" and args.rank == -1:
+          args.rank = int(os.environ["RANK"])
+      if args.multiprocessing_distributed:
+          # For multiprocessing distributed training, rank needs to be the
+          # global rank among all the processes
+          args.rank = args.rank * ngpus_per_node + gpu
+      dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
+                              world_size=args.world_size, rank=args.rank)
+
+
+
+
   print('Creating model...')
   model = create_model(opt.arch, opt.heads, opt.head_conv)
   optimizer = torch.optim.Adam(model.parameters(), opt.lr)
@@ -45,7 +86,7 @@ def main(opt):
       Dataset(opt, 'val'), 
       batch_size=1, 
       shuffle=False,
-      num_workers=1,
+      num_workers=0,
       pin_memory=True
   )
 

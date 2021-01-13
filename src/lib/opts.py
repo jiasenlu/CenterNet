@@ -12,7 +12,7 @@ class opts(object):
     # basic experiment setting
     self.parser.add_argument('task', default='ctdet',
                              help='ctdet | ddd | multi_pose | exdet')
-    self.parser.add_argument('--dataset', default='coco',
+    self.parser.add_argument('--dataset', default='ai2thor',
                              help='coco | kitti | coco_hp | pascal')
     self.parser.add_argument('--exp_id', default='default')
     self.parser.add_argument('--test', action='store_true')
@@ -36,7 +36,7 @@ class opts(object):
     # system
     self.parser.add_argument('--gpus', default='0', 
                              help='-1 for CPU, use comma for multiple gpus')
-    self.parser.add_argument('--num_workers', type=int, default=4,
+    self.parser.add_argument('--num_workers', type=int, default=0,
                              help='dataloader threads. 0 for single-thread.')
     self.parser.add_argument('--not_cuda_benchmark', action='store_true',
                              help='disable when the input size is not fixed.')
@@ -82,9 +82,9 @@ class opts(object):
     # train
     self.parser.add_argument('--lr', type=float, default=1.25e-4, 
                              help='learning rate for batch size 32.')
-    self.parser.add_argument('--lr_step', type=str, default='90,120',
+    self.parser.add_argument('--lr_step', type=str, default='50,80',
                              help='drop learning rate by 10.')
-    self.parser.add_argument('--num_epochs', type=int, default=140,
+    self.parser.add_argument('--num_epochs', type=int, default=100,
                              help='total training epochs.')
     self.parser.add_argument('--batch_size', type=int, default=32,
                              help='batch size')
@@ -223,6 +223,25 @@ class opts(object):
                              help='use ground truth human joint local offset.')
     self.parser.add_argument('--eval_oracle_dep', action='store_true', 
                              help='use ground truth depth.')
+
+
+    self.parser.add_argument('--world-size', default=-1, type=int,
+                        help='number of nodes for distributed training')
+    self.parser.add_argument('--rank', default=-1, type=int,
+                        help='node rank for distributed training')
+    self.parser.add_argument('--dist-url', default='tcp://224.66.41.62:23456', type=str,
+                        help='url used to set up distributed training')
+    self.parser.add_argument('--dist-backend', default='nccl', type=str,
+                        help='distributed backend')
+    self.parser.add_argument('--seed', default=None, type=int,
+                        help='seed for initializing training. ')
+    self.parser.add_argument('--gpu', default=None, type=int,
+                        help='GPU id to use.')
+    self.parser.add_argument('--multiprocessing-distributed', action='store_true',
+                        help='Use multi-processing distributed training to launch '
+                            'N processes per node, which has N GPUs. This is the '
+                            'fastest way to use PyTorch for either single node or '
+                            'multi node data parallel training')
 
   def parse(self, args=''):
     if args == '':
