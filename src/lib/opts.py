@@ -42,6 +42,8 @@ class opts(object):
                              help='disable when the input size is not fixed.')
     self.parser.add_argument('--seed', type=int, default=317, 
                              help='random seed') # from CornerNet
+    self.parser.add_argument('--num_classes', type=int, default=110, 
+                             help='num_classes') # from CornerNet
 
     # log
     self.parser.add_argument('--print_iter', type=int, default=0, 
@@ -224,25 +226,6 @@ class opts(object):
     self.parser.add_argument('--eval_oracle_dep', action='store_true', 
                              help='use ground truth depth.')
 
-
-    self.parser.add_argument('--world-size', default=-1, type=int,
-                        help='number of nodes for distributed training')
-    self.parser.add_argument('--rank', default=-1, type=int,
-                        help='node rank for distributed training')
-    self.parser.add_argument('--dist-url', default='tcp://224.66.41.62:23456', type=str,
-                        help='url used to set up distributed training')
-    self.parser.add_argument('--dist-backend', default='nccl', type=str,
-                        help='distributed backend')
-    self.parser.add_argument('--seed', default=None, type=int,
-                        help='seed for initializing training. ')
-    self.parser.add_argument('--gpu', default=None, type=int,
-                        help='GPU id to use.')
-    self.parser.add_argument('--multiprocessing-distributed', action='store_true',
-                        help='Use multi-processing distributed training to launch '
-                            'N processes per node, which has N GPUs. This is the '
-                            'fastest way to use PyTorch for either single node or '
-                            'multi node data parallel training')
-
   def parse(self, args=''):
     if args == '':
       opt = self.parser.parse_args()
@@ -354,9 +337,9 @@ class opts(object):
 
   def init(self, args=''):
     default_dataset_info = {
-      'ctdet': {'default_resolution': [512, 512], 'num_classes': 80, 
+      'ctdet': {'default_resolution': [320, 320], 'num_classes': 110, 
                 'mean': [0.408, 0.447, 0.470], 'std': [0.289, 0.274, 0.278],
-                'dataset': 'coco'},
+                'dataset': 'ai2thor'},
       'exdet': {'default_resolution': [512, 512], 'num_classes': 80, 
                 'mean': [0.408, 0.447, 0.470], 'std': [0.289, 0.274, 0.278],
                 'dataset': 'coco'},

@@ -188,7 +188,7 @@ class ai2thor(data.Dataset):
         'ai2thor_instance_{}.json').format(split)
 
     self.max_objs = 128
-    self.class_name = ['__background__'] + list(ALL_OBJECT_TYPE)
+    self.class_name = ['__background__'] + sorted(list(ALL_OBJECT_TYPE))
 
     self._valid_ids = [i+1 for i in range(len(ALL_OBJECT_TYPE))]
 
